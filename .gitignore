@@ -1,0 +1,14 @@
+runs/
+output/
+temp/
+comparison/
+jianying_handoff/
+*.log
+*.mp4
+*.mov
+*.mkv
+*.safetensors
+.env
+.env.*
+Thumbs.db
+.DS_Store

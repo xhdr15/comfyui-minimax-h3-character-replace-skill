@@ -1,0 +1,71 @@
+{
+  "name": "h3-vram-optimized",
+  "description": "Baseline exported from MINIMAX-H3 显存终极优化工作流(1).json. The graph stays locked; only the listed node inputs are patched.",
+  "workflow": "assets/workflows/h3-vram-optimized.api.json",
+  "server": "http://127.0.0.1:8188",
+  "required_nodes": {
+    "84": "PrimitiveFloat",
+    "97": "LoadImage",
+    "101": "LoadImage",
+    "105": "ResolutionSelector",
+    "108": "MiniMaxH3ReferenceToVideo",
+    "135": "VHS_LoadVideo",
+    "243": "RandomNoise",
+    "299": "VHS_VideoCombine",
+    "346": "PrimitiveStringMultiline"
+  },
+  "bindings": {
+    "character_image_1": {
+      "node": "97",
+      "input": "image"
+    },
+    "character_image_2": {
+      "node": "101",
+      "input": "image"
+    },
+    "source_video": {
+      "node": "135",
+      "input": "video"
+    },
+    "duration_seconds": {
+      "node": "84",
+      "input": "value"
+    },
+    "source_frames": {
+      "node": "135",
+      "input": "frame_load_cap"
+    },
+    "prompt": {
+      "node": "346",
+      "input": "value"
+    },
+    "aspect_ratio": {
+      "node": "105",
+      "input": "aspect_ratio"
+    },
+    "megapixels": {
+      "node": "105",
+      "input": "megapixels"
+    },
+    "seed": {
+      "node": "243",
+      "input": "noise_seed"
+    },
+    "output_prefix": {
+      "node": "299",
+      "input": "filename_prefix"
+    },
+    "source_start_frame": {
+      "node": "135",
+      "input": "skip_first_frames"
+    }
+  },
+  "defaults": {
+    "duration_seconds": 8,
+    "aspect_ratio": "16:9 (Widescreen)",
+    "megapixels": 0.3
+  },
+  "derived": {
+    "source_frames": "compute_h3_frame_length(duration_seconds)"
+  }
+}
