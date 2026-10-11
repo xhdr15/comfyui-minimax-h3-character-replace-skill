@@ -1,90 +1,90 @@
-# ComfyUI MiniMax H3 Character Replace Skill
+# ComfyUI MiniMax H3 人物替换 Skill
 
-Experimental Codex skill for local ComfyUI character replacement with MiniMax H3, long-video segmentation, frame comparison, and optional Jianying Professional export.
+这是一个实验性的 Codex Skill，用于在本地 ComfyUI 中执行 MiniMax H3 人物替换，并支持长视频分段、原视频与结果视频帧对比，以及可选的剪映专业版导出流程。
 
-## Status
+## 当前状态
 
-This is a preview skill tied to a specific local workflow profile. It is not a standalone ComfyUI model package and it does not download models.
+这是一个预览版 Skill，绑定特定的本地工作流模板。它不是独立的 ComfyUI 模型包，也不会自动下载模型。
 
-## Features
+## 主要功能
 
-- Run a local ComfyUI MiniMax H3 reference-to-video workflow through the local API.
-- Bind reference images, source video, prompt, duration, frames, aspect ratio, megapixels, seed, and output prefix.
-- Keep model, LoRA, attention, sigma, VAE, sampler, and upscaler nodes locked.
-- Generate an ordered plan before execution.
-- Split long videos on valid H3 frame lengths (`5 + 17n`).
-- Compare original and generated videos with a contact sheet, side-by-side video, SSIM, and PSNR.
-- Prepare an ordered Jianying Professional handoff package.
-- Optionally drive Jianying Professional through Computer Use and re-compare the final export.
+- 通过本地 ComfyUI 接口执行 MiniMax H3 参考转视频工作流。
+- 绑定角色参考图、源视频、提示词、时长、帧数、分辨率比例、像素量、随机种子和输出前缀。
+- 锁定模型、LoRA、低显存注意力、Sigma 精修、VAE、采样器和放大节点。
+- 正式执行前先生成计划文件，便于检查。
+- 按 H3 合法帧数规则进行长视频分段。
+- 生成原视频与结果视频的抽帧对照图、并排对比视频、结构相似度和峰值信噪比。
+- 生成按顺序排列的剪映专业版导入包。
+- 可选通过 Computer Use 操作剪映专业版导出，并再次做帧对比。
 
-## Requirements
+## 环境要求
 
-- Windows for the optional Jianying stage.
-- Node.js 18 or later.
-- A running local ComfyUI instance at `http://127.0.0.1:8188` by default.
-- `ffmpeg` in PATH or available as `ffmpeg.exe` under the ComfyUI root.
-- The same custom node classes and model files expected by `assets/workflows/h3-vram-optimized.api.json`.
-- Optional: Jianying Professional.
+- 剪映相关流程需要 Windows。
+- Node.js 18 或更高版本。
+- 本地 ComfyUI 服务，默认地址为 `http://127.0.0.1:8188`。
+- `ffmpeg` 已加入系统路径，或位于 ComfyUI 根目录下。
+- 需要与 `assets/workflows/h3-vram-optimized.api.json` 匹配的自定义节点类和模型文件。
+- 可选：剪映专业版。
 
-See `references/dependencies.md`.
+具体依赖见 `references/dependencies.md`。
 
-## Install
+## 安装
 
-Copy this repository into the Codex skills directory:
+把本仓库复制到 Codex Skills 目录：
 
 ```text
 <CODEX_HOME>/skills/comfyui-character-replace
 ```
 
-On Windows the default location is usually:
+在 Windows 上，默认位置通常是：
 
 ```text
-C:\Users\<user>\.codex\skills\comfyui-character-replace
+C:\Users\<用户名>\.codex\skills\comfyui-character-replace
 ```
 
-## Quick Start
+## 快速开始
 
-Plan first:
+先执行计划模式：
 
 ```bash
-node scripts/run_h3_workflow.mjs --plan --character-image-1 <path> --character-image-2 <path> --source-video <path> --prompt-file <path>
+node scripts/run_h3_workflow.mjs --plan --character-image-1 <角色图1> --character-image-2 <角色图2> --source-video <源视频> --prompt-file <提示词文件>
 ```
 
-Execute only after reviewing the plan:
+确认计划无误后，再执行生成：
 
 ```bash
-node scripts/run_h3_workflow.mjs --execute --character-image-1 <path> --character-image-2 <path> --source-video <path> --prompt-file <path>
+node scripts/run_h3_workflow.mjs --execute --character-image-1 <角色图1> --character-image-2 <角色图2> --source-video <源视频> --prompt-file <提示词文件>
 ```
 
-Compare original and result:
+对比原视频与结果视频：
 
 ```bash
-node scripts/compare_videos.mjs --original <source-video> --result <generated-video> --out-dir <run-dir>/comparison --comfy-root <comfy-root>
+node scripts/compare_videos.mjs --original <源视频> --result <结果视频> --out-dir <运行目录>/comparison --comfy-root <ComfyUI根目录>
 ```
 
-Prepare optional Jianying handoff:
+生成可选的剪映导入包：
 
 ```bash
-node scripts/prepare_jianying_handoff.mjs --manifest <run-manifest.json> --out-dir <run-dir>/jianying_handoff --comfy-root <comfy-root>
+node scripts/prepare_jianying_handoff.mjs --manifest <运行清单> --out-dir <运行目录>/jianying_handoff --comfy-root <ComfyUI根目录>
 ```
 
-## Workflow Profile
+## 工作流配置
 
-The runner is controlled by:
+运行器由以下文件控制：
 
 - `assets/profiles/h3-vram-optimized.json`
 - `assets/workflows/h3-vram-optimized.api.json`
 
-If the source workflow graph changes, re-export the API workflow and update the profile node IDs and input names.
+如果源工作流发生变化，需要重新导出接口格式工作流，并更新配置中的节点编号和输入名称。
 
-## Known Limitations
+## 已知限制
 
-- The bundled workflow is specific to one local H3 graph and node set.
-- Model filenames and custom-node versions are not bundled.
-- Jianying integration is Windows-only and version-sensitive.
-- Jianying default export may be 30 FPS; set 24 FPS manually when exact timing is required.
-- The skill is local-first. No telemetry, analytics, or background update checks are included.
+- 内置工作流绑定特定的本地 H3 图结构和节点集合。
+- 仓库不包含模型文件和自定义节点版本。
+- 剪映流程只支持 Windows，并且受剪映版本变化影响。
+- 剪映默认可能导出为 30 帧每秒；需要严格保持原始帧率时，应手动设置导出帧率。
+- 本 Skill 以本地运行为主，不包含遥测、统计上报、分析或后台更新检查。
 
-## License
+## 许可证
 
-No license has been granted yet. Add one before public distribution if you want others to reuse the code.
+当前尚未授予许可证。如果要公开分发并允许他人复用代码，请先补充许可证。
